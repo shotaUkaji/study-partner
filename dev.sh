@@ -30,7 +30,18 @@ if [ "$SIMULATOR" = true ]; then
   echo "📱 iOS シミュレーターでビルド・起動します（ホットリロード有効）"
   npx expo run:ios
 else
-  echo "📱 実機でビルド・起動します（ホットリロード有効）"
+  # Mac の WiFi IP を取得（物理デバイスから localhost には届かないため）
+  HOST_IP=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || echo "")
+
+  if [ -z "$HOST_IP" ]; then
+    echo "⚠️  WiFi の IP アドレスを取得できませんでした。Mac と iPhone が同じ WiFi に接続されているか確認してください。"
+    echo "📱 実機でビルド・起動します（ホットリロード有効）"
+  else
+    echo "📱 実機でビルド・起動します（ホットリロード有効）"
+    echo "   Metro アドレス: http://${HOST_IP}:8081"
+    export EXPO_DEVSERVER_HOST="$HOST_IP"
+  fi
+
   echo "   デバイスを USB 接続して信頼済みにしてください"
   echo ""
   npx expo run:ios --device
