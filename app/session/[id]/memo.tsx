@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import RenderHtml from 'react-native-render-html';
 import { useLocalSearchParams } from 'expo-router';
-import { randomUUID } from 'expo-crypto';
+import { generateId } from '@/utils/uuid';
 import { useSessionStore } from '@/store/sessionStore';
 import { generateSummary } from '@/services/anthropic';
 import { getApiKey } from '@/hooks/useStorage';
@@ -64,7 +64,7 @@ export default function MemoScreen() {
   const handleAddMemo = async () => {
     if (!newMemo.trim()) return;
     const memo: UserMemo = {
-      id: randomUUID(),
+      id: generateId(),
       sessionId: id,
       content: newMemo.trim(),
       timestamp: new Date().toISOString(),

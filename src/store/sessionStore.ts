@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { randomUUID } from 'expo-crypto';
+import { generateId } from '@/utils/uuid';
 import type { Session, Message, Source, UserMemo } from '@/types';
 import * as queries from '@/db/queries';
 
@@ -29,7 +29,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
   },
 
   createSession: async (question: string) => {
-    const id = randomUUID();
+    const id = generateId();
     await queries.createSession({ id, question });
     const newSession: Session = {
       id, question,

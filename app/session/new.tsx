@@ -4,7 +4,7 @@ import {
   StyleSheet, ScrollView, ActivityIndicator, Alert,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { randomUUID } from 'expo-crypto';
+import { generateId } from '@/utils/uuid';
 import { useSessionStore } from '@/store/sessionStore';
 import { fetchUrlContent, isValidUrl, extractDomain } from '@/services/jina';
 import { pickPdf } from '@/services/pdf';
@@ -105,7 +105,7 @@ export default function NewSessionScreen() {
   ) => {
     if (content) {
       const source: Source = {
-        id: randomUUID(),
+        id: generateId(),
         sessionId: id,
         type,
         originalRef: ref,
