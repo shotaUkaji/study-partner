@@ -10,7 +10,6 @@ import { generateSummary } from '@/services/anthropic';
 import { getApiKey } from '@/hooks/useStorage';
 import type { UserMemo } from '@/types';
 
-// シンプルな Markdown → HTML 変換（太字・見出し・箇条書き）
 function mdToHtml(md: string): string {
   return md
     .replace(/^### (.+)$/gm, '<h3>$1</h3>')
@@ -25,10 +24,10 @@ function mdToHtml(md: string): string {
 const htmlTagStyles = {
   h1: { color: '#c9a84c', fontSize: 16, fontWeight: '700' as const, marginBottom: 4 },
   h2: { color: '#c9a84c', fontSize: 15, fontWeight: '700' as const, marginBottom: 4 },
-  h3: { color: '#e8e0d0', fontSize: 14, fontWeight: '600' as const, marginBottom: 2 },
-  p:  { color: '#e8e0d0', fontSize: 14, lineHeight: 22 },
-  li: { color: '#e8e0d0', fontSize: 14, lineHeight: 22 },
-  b:  { color: '#e8e0d0', fontWeight: '700' as const },
+  h3: { color: '#1a1612', fontSize: 14, fontWeight: '600' as const, marginBottom: 2 },
+  p:  { color: '#1a1612', fontSize: 14, lineHeight: 22 },
+  li: { color: '#1a1612', fontSize: 14, lineHeight: 22 },
+  b:  { color: '#1a1612', fontWeight: '700' as const },
 };
 
 export default function MemoScreen() {
@@ -40,7 +39,6 @@ export default function MemoScreen() {
   const [newMemo, setNewMemo] = useState('');
   const [isAutoGenerating, setIsAutoGenerating] = useState(false);
 
-  // 要約未生成かつメッセージが4件以上あれば自動生成
   useEffect(() => {
     if (!session || session.summaryMemo || session.messages.length < 4) return;
     (async () => {
@@ -58,7 +56,7 @@ export default function MemoScreen() {
 
   if (!session) return (
     <View style={styles.centered}>
-      <Text style={{ color: '#5a6080' }}>セッションが見つかりません</Text>
+      <Text style={{ color: '#a09580' }}>セッションが見つかりません</Text>
     </View>
   );
 
@@ -80,14 +78,10 @@ export default function MemoScreen() {
       `作成: ${new Date(session.createdAt).toLocaleDateString('ja-JP')}`,
       '',
     ];
-    if (session.summaryMemo) {
-      lines.push(session.summaryMemo, '');
-    }
+    if (session.summaryMemo) lines.push(session.summaryMemo, '');
     if (session.userMemos.length > 0) {
       lines.push('## 自分のメモ', '');
-      session.userMemos.forEach(m => {
-        lines.push(`- ${m.content}`);
-      });
+      session.userMemos.forEach(m => lines.push(`- ${m.content}`));
     }
     await Share.share({ message: lines.join('\n') });
   };
@@ -96,7 +90,6 @@ export default function MemoScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled">
 
-      {/* ヘッダー */}
       <View style={styles.headerRow}>
         <Text style={styles.title} numberOfLines={2}>{session.question}</Text>
         <TouchableOpacity onPress={handleExport} style={styles.exportBtn}>
@@ -104,7 +97,6 @@ export default function MemoScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* AI 要約メモ */}
       <Text style={styles.sectionLabel}>AI 理解マップ</Text>
       <View style={styles.card}>
         {isAutoGenerating ? (
@@ -117,7 +109,7 @@ export default function MemoScreen() {
             contentWidth={width - 72}
             source={{ html: mdToHtml(session.summaryMemo) }}
             tagsStyles={htmlTagStyles}
-            baseStyle={{ color: '#e8e0d0', fontSize: 14 }}
+            baseStyle={{ color: '#1a1612', fontSize: 14 }}
           />
         ) : (
           <Text style={styles.emptyHint}>
@@ -126,7 +118,6 @@ export default function MemoScreen() {
         )}
       </View>
 
-      {/* 自分のメモ */}
       <Text style={[styles.sectionLabel, { marginTop: 24 }]}>自分のメモ</Text>
 
       <View style={styles.memoInputRow}>
@@ -135,7 +126,7 @@ export default function MemoScreen() {
           value={newMemo}
           onChangeText={setNewMemo}
           placeholder="気づきを追加..."
-          placeholderTextColor="#3a3d50"
+          placeholderTextColor="#b8b0a0"
           multiline
         />
         <TouchableOpacity
@@ -170,30 +161,30 @@ export default function MemoScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0d0e14' },
+  container: { flex: 1, backgroundColor: '#f5f0e8' },
   content: { padding: 20, gap: 8, paddingBottom: 40 },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginBottom: 16 },
-  title: { flex: 1, fontSize: 16, color: '#e8e0d0', lineHeight: 24 },
+  title: { flex: 1, fontSize: 16, color: '#1a1612', lineHeight: 24 },
   exportBtn: {
-    borderWidth: 1, borderColor: '#2a2d3a', borderRadius: 8,
-    paddingHorizontal: 12, paddingVertical: 6,
+    borderWidth: 1, borderColor: '#d8d0c0', borderRadius: 8,
+    paddingHorizontal: 12, paddingVertical: 6, backgroundColor: '#ede8dd',
   },
-  exportText: { fontSize: 12, color: '#8888a0' },
+  exportText: { fontSize: 12, color: '#6b6355' },
 
-  sectionLabel: { fontSize: 11, color: '#5a6080', letterSpacing: 1.5, marginBottom: 8 },
+  sectionLabel: { fontSize: 11, color: '#a09580', letterSpacing: 1.5, marginBottom: 8 },
   card: {
-    backgroundColor: '#10121a', borderRadius: 12,
-    padding: 16, borderWidth: 1, borderColor: '#1e2030',
+    backgroundColor: '#ede8dd', borderRadius: 12,
+    padding: 16, borderWidth: 1, borderColor: '#d8d0c0',
   },
-  emptyHint: { fontSize: 13, color: '#3a3d50', lineHeight: 20 },
+  emptyHint: { fontSize: 13, color: '#a09580', lineHeight: 20 },
 
   memoInputRow: { flexDirection: 'row', gap: 8, alignItems: 'flex-end', marginBottom: 8 },
   memoInput: {
-    flex: 1, backgroundColor: '#10121a',
-    borderWidth: 1, borderColor: '#1e2030',
-    borderRadius: 10, padding: 12, color: '#e8e0d0', fontSize: 14,
+    flex: 1, backgroundColor: '#ede8dd',
+    borderWidth: 1, borderColor: '#d8d0c0',
+    borderRadius: 10, padding: 12, color: '#1a1612', fontSize: 14,
     maxHeight: 100, textAlignVertical: 'top',
   },
   addBtn: {
@@ -201,13 +192,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14, paddingVertical: 12,
   },
   addBtnDisabled: { opacity: 0.4 },
-  addBtnText: { color: '#0d0e14', fontWeight: '700', fontSize: 13 },
+  addBtnText: { color: '#fff', fontWeight: '700', fontSize: 13 },
 
   memoCard: {
-    backgroundColor: '#10121a', borderRadius: 10,
-    padding: 14, borderWidth: 1, borderColor: '#1e2030',
+    backgroundColor: '#ede8dd', borderRadius: 10,
+    padding: 14, borderWidth: 1, borderColor: '#d8d0c0',
     marginBottom: 8, gap: 6,
   },
-  memoText: { fontSize: 14, color: '#e8e0d0', lineHeight: 22 },
-  memoDate: { fontSize: 11, color: '#3a3d50' },
+  memoText: { fontSize: 14, color: '#1a1612', lineHeight: 22 },
+  memoDate: { fontSize: 11, color: '#b8b0a0' },
 });

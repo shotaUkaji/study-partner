@@ -23,12 +23,13 @@ export default function RootLayout() {
 
   return (
     <ShareIntentProvider>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: '#0d0e14' },
-          headerTintColor: '#e8e0d0',
-          contentStyle: { backgroundColor: '#0d0e14' },
+          headerStyle: { backgroundColor: '#f5f0e8' },
+          headerTintColor: '#1a1612',
+          contentStyle: { backgroundColor: '#f5f0e8' },
+          headerShadowVisible: false,
         }}
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

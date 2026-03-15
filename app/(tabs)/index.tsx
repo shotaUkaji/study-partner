@@ -15,7 +15,6 @@ export default function HomeScreen() {
 
   useEffect(() => { loadSessions(); }, []);
 
-  // Share Extension から URL が共有されたら新規セッション画面に遷移
   useEffect(() => {
     if (!hasShareIntent) return;
     const url = shareIntent?.webUrl ?? shareIntent?.text ?? null;
@@ -93,14 +92,14 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0d0e14' },
+  container: { flex: 1, backgroundColor: '#f5f0e8' },
 
   card: {
-    backgroundColor: '#10121a',
+    backgroundColor: '#ede8dd',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#1e2030',
+    borderColor: '#d8d0c0',
     gap: 8,
   },
   cardHeader: {
@@ -108,26 +107,26 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  sourceLabel: { fontSize: 11, color: '#5a6080', flex: 1 },
-  date: { fontSize: 11, color: '#3a3d50' },
-  question: { fontSize: 15, color: '#e8e0d0', lineHeight: 22 },
+  sourceLabel: { fontSize: 11, color: '#a09580', flex: 1 },
+  date: { fontSize: 11, color: '#b8b0a0' },
+  question: { fontSize: 15, color: '#1a1612', lineHeight: 22 },
   cardFooter: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     marginTop: 4,
   },
-  msgCount: { fontSize: 11, color: '#3a3d50', flex: 1 },
+  msgCount: { fontSize: 11, color: '#b8b0a0', flex: 1 },
   memoTag: {
     fontSize: 11, color: '#c9a84c',
     borderWidth: 1, borderColor: '#c9a84c',
     borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2,
   },
-  deleteBtn: { fontSize: 12, color: '#5a6080' },
+  deleteBtn: { fontSize: 12, color: '#a09580' },
 
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
-  emptyIcon: { fontSize: 40, color: '#1e2030' },
-  emptyText: { fontSize: 14, color: '#3a3d50', textAlign: 'center', lineHeight: 22 },
+  emptyIcon: { fontSize: 40, color: '#d8d0c0' },
+  emptyText: { fontSize: 14, color: '#a09580', textAlign: 'center', lineHeight: 22 },
 
   fab: {
     position: 'absolute', bottom: 28, right: 24,
@@ -135,7 +134,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#c9a84c',
     alignItems: 'center', justifyContent: 'center',
     shadowColor: '#c9a84c', shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4, shadowRadius: 8, elevation: 8,
+    shadowOpacity: 0.3, shadowRadius: 8, elevation: 8,
   },
-  fabText: { fontSize: 28, color: '#0d0e14', lineHeight: 32 },
+  fabText: { fontSize: 28, color: '#fff', lineHeight: 32 },
 });

@@ -7,7 +7,6 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSessionStore } from '@/store/sessionStore';
 import { fetchUrlContent, isValidUrl, extractDomain } from '@/services/jina';
 import { pickPdf } from '@/services/pdf';
-import { useChat, buildInitialUserMessage } from '@/hooks/useChat';
 import type { Source } from '@/types';
 
 type InputTab = 'url' | 'text' | 'pdf';
@@ -26,7 +25,7 @@ export default function NewSessionScreen() {
   const [isFetching, setIsFetching] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
 
-  // Share Extension から URL が渡された場合は自動入力
+
   useEffect(() => {
     if (sharedUrl) {
       setTab('url');
@@ -34,25 +33,18 @@ export default function NewSessionScreen() {
     }
   }, [sharedUrl]);
 
-  // セッションIDは作成前は空。start後に設定
-  const [sessionId, setSessionId] = useState('');
-  const { send } = useChat(sessionId);
-
   const canStart = question.trim().length > 0;
 
   const handleStart = async () => {
     if (!canStart) return;
     setIsStarting(true);
 
-    // 1. セッション作成
     const id = await createSession(question.trim());
-    setSessionId(id);
 
     let sourceContent = '';
     let sourceRef = 'なし';
     let sourceType: Source['type'] = 'text';
 
-    // 2. コンテンツ取得
     if (tab === 'url' && urlInput.trim()) {
       if (!isValidUrl(urlInput.trim())) {
         Alert.alert('URL エラー', '有効な URL を入力してください（http:// または https://）');
@@ -99,7 +91,6 @@ export default function NewSessionScreen() {
     ref: string,
     type: Source['type'],
   ) => {
-    // 3. ソース保存
     if (content) {
       const source: Source = {
         id: crypto.randomUUID(),
@@ -112,13 +103,7 @@ export default function NewSessionScreen() {
       await addSource(source);
     }
 
-    // 4. チャット画面へ遷移
-    // PDF の場合は content に base64 が入っているためチャット側で document ブロックとして送信される
     router.replace(`/session/${id}`);
-
-    // 最初のメッセージは useChat の send 経由で送る
-    // チャット画面側で initialMessage を受け取って自動送信する構成にするため
-    // ここでは query param で渡す
     setIsStarting(false);
   };
 
@@ -126,22 +111,19 @@ export default function NewSessionScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled">
 
-      {/* 疑問文入力 */}
       <Text style={styles.label}>何を知りたいですか？</Text>
       <TextInput
         style={styles.questionInput}
         value={question}
         onChangeText={setQuestion}
         placeholder="例：なぜ Transformer は RNN より並列化しやすいのか？"
-        placeholderTextColor="#3a3d50"
+        placeholderTextColor="#b8b0a0"
         multiline
         autoFocus
       />
 
-      {/* コンテンツ追加 */}
       <Text style={[styles.label, { marginTop: 24 }]}>参考コンテンツ（任意）</Text>
 
-      {/* タブ切り替え */}
       <View style={styles.tabs}>
         {(['url', 'pdf', 'text'] as InputTab[]).map(t => (
           <TouchableOpacity
@@ -162,7 +144,7 @@ export default function NewSessionScreen() {
           value={urlInput}
           onChangeText={setUrlInput}
           placeholder="https://..."
-          placeholderTextColor="#3a3d50"
+          placeholderTextColor="#b8b0a0"
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="url"
@@ -174,7 +156,7 @@ export default function NewSessionScreen() {
           value={textInput}
           onChangeText={setTextInput}
           placeholder="コピーしたテキストを貼り付け..."
-          placeholderTextColor="#3a3d50"
+          placeholderTextColor="#b8b0a0"
           multiline
         />
       )}
@@ -207,11 +189,8 @@ export default function NewSessionScreen() {
         </View>
       )}
 
-      <Text style={styles.hint}>
-        コンテンツなしでも調べごとを始められます
-      </Text>
+      <Text style={styles.hint}>コンテンツなしでも調べごとを始められます</Text>
 
-      {/* 開始ボタン */}
       <TouchableOpacity
         style={[styles.startBtn, !canStart && styles.startBtnDisabled]}
         onPress={handleStart}
@@ -220,7 +199,7 @@ export default function NewSessionScreen() {
       >
         {isStarting || isFetching ? (
           <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-            <ActivityIndicator size="small" color="#0d0e14" />
+            <ActivityIndicator size="small" color="#fff" />
             <Text style={styles.startBtnText}>
               {isFetching ? 'コンテンツ取得中...' : '準備中...'}
             </Text>
@@ -235,51 +214,52 @@ export default function NewSessionScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0d0e14' },
+  container: { flex: 1, backgroundColor: '#f5f0e8' },
   content: { padding: 20, gap: 8 },
 
-  label: { fontSize: 11, color: '#5a6080', letterSpacing: 1.5, marginBottom: 8 },
+  label: { fontSize: 11, color: '#a09580', letterSpacing: 1.5, marginBottom: 8 },
   questionInput: {
-    backgroundColor: '#10121a', borderWidth: 1, borderColor: '#1e2030',
-    borderRadius: 12, padding: 16, color: '#e8e0d0', fontSize: 16,
+    backgroundColor: '#ede8dd', borderWidth: 1, borderColor: '#d8d0c0',
+    borderRadius: 12, padding: 16, color: '#1a1612', fontSize: 16,
     lineHeight: 26, minHeight: 100, textAlignVertical: 'top',
   },
 
   tabs: { flexDirection: 'row', gap: 8, marginBottom: 8 },
   tab: {
     flex: 1, padding: 10, borderRadius: 8,
-    borderWidth: 1, borderColor: '#1e2030', alignItems: 'center',
+    borderWidth: 1, borderColor: '#d8d0c0', alignItems: 'center',
+    backgroundColor: '#ede8dd',
   },
-  tabActive: { borderColor: '#c9a84c', backgroundColor: '#1a1510' },
-  tabText: { fontSize: 13, color: '#5a6080' },
+  tabActive: { borderColor: '#c9a84c', backgroundColor: '#fdf5e0' },
+  tabText: { fontSize: 13, color: '#a09580' },
   tabTextActive: { color: '#c9a84c' },
 
   input: {
-    backgroundColor: '#10121a', borderWidth: 1, borderColor: '#1e2030',
-    borderRadius: 12, padding: 14, color: '#e8e0d0', fontSize: 14,
+    backgroundColor: '#ede8dd', borderWidth: 1, borderColor: '#d8d0c0',
+    borderRadius: 12, padding: 14, color: '#1a1612', fontSize: 14,
   },
-  hint: { fontSize: 12, color: '#3a3d50', marginTop: 4 },
+  hint: { fontSize: 12, color: '#b8b0a0', marginTop: 4 },
 
   pdfArea: { marginBottom: 4 },
   pdfPickBtn: {
-    backgroundColor: '#10121a', borderWidth: 1, borderColor: '#1e2030',
+    backgroundColor: '#ede8dd', borderWidth: 1, borderColor: '#d8d0c0',
     borderRadius: 12, padding: 14, alignItems: 'center',
     borderStyle: 'dashed',
   },
-  pdfPickText: { fontSize: 14, color: '#5a6080' },
+  pdfPickText: { fontSize: 14, color: '#a09580' },
   pdfSelected: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
-    backgroundColor: '#10121a', borderWidth: 1, borderColor: '#1e2030',
+    backgroundColor: '#ede8dd', borderWidth: 1, borderColor: '#d8d0c0',
     borderRadius: 12, padding: 14,
   },
   pdfIcon: { fontSize: 18 },
-  pdfName: { flex: 1, fontSize: 14, color: '#e8e0d0' },
-  pdfClear: { fontSize: 16, color: '#5a6080', paddingHorizontal: 4 },
+  pdfName: { flex: 1, fontSize: 14, color: '#1a1612' },
+  pdfClear: { fontSize: 16, color: '#a09580', paddingHorizontal: 4 },
 
   startBtn: {
     backgroundColor: '#c9a84c', borderRadius: 12,
     padding: 16, alignItems: 'center', marginTop: 24,
   },
   startBtnDisabled: { opacity: 0.4 },
-  startBtnText: { color: '#0d0e14', fontWeight: '700', fontSize: 16 },
+  startBtnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
 });

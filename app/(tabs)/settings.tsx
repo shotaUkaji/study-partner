@@ -59,7 +59,6 @@ export default function SettingsScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
 
-      {/* API キーセクション */}
       <Text style={styles.sectionLabel}>ANTHROPIC API キー</Text>
       <View style={styles.card}>
         {savedKey ? (
@@ -98,7 +97,7 @@ export default function SettingsScreen() {
               value={inputKey}
               onChangeText={setInputKey}
               placeholder="sk-ant-api03-..."
-              placeholderTextColor="#3a3d50"
+              placeholderTextColor="#b8b0a0"
               secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
@@ -114,12 +113,11 @@ export default function SettingsScreen() {
         )}
       </View>
 
-      {/* アプリ情報 */}
       <Text style={[styles.sectionLabel, { marginTop: 32 }]}>アプリ情報</Text>
       <View style={styles.card}>
         <InfoRow label="バージョン" value="0.1.0" />
-        <InfoRow label="AIモデル" value="claude-sonnet-4" />
-        <InfoRow label="URLフェッチ" value="Jina AI Reader" />
+        <InfoRow label="AI モデル" value="claude-sonnet-4" />
+        <InfoRow label="URL フェッチ" value="Jina AI Reader" />
       </View>
 
     </ScrollView>
@@ -136,43 +134,42 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0d0e14' },
+  container: { flex: 1, backgroundColor: '#f5f0e8' },
   content: { padding: 20, gap: 8 },
 
   sectionLabel: {
-    fontSize: 11, color: '#5a6080',
+    fontSize: 11, color: '#a09580',
     letterSpacing: 1.5, marginBottom: 8, marginLeft: 4,
   },
   card: {
-    backgroundColor: '#10121a', borderRadius: 12,
-    padding: 16, borderWidth: 1, borderColor: '#1e2030', gap: 12,
+    backgroundColor: '#ede8dd', borderRadius: 12,
+    padding: 16, borderWidth: 1, borderColor: '#d8d0c0', gap: 12,
   },
 
-  hint: { fontSize: 13, color: '#5a6080', lineHeight: 20 },
+  hint: { fontSize: 13, color: '#6b6355', lineHeight: 20 },
   input: {
-    backgroundColor: '#0d0e14', borderWidth: 1, borderColor: '#1e2030',
-    borderRadius: 8, padding: 12, color: '#e8e0d0', fontSize: 14,
-    fontFamily: 'monospace',
+    backgroundColor: '#f5f0e8', borderWidth: 1, borderColor: '#d8d0c0',
+    borderRadius: 8, padding: 12, color: '#1a1612', fontSize: 14,
   },
   saveBtn: {
     backgroundColor: '#c9a84c', borderRadius: 8,
     padding: 12, alignItems: 'center',
   },
   saveBtnDisabled: { opacity: 0.4 },
-  saveBtnText: { color: '#0d0e14', fontWeight: '700', fontSize: 14 },
+  saveBtnText: { color: '#fff', fontWeight: '700', fontSize: 14 },
 
   row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  maskedKey: { flex: 1, fontSize: 13, color: '#e8e0d0', fontFamily: 'monospace' },
-  deleteText: { fontSize: 13, color: '#e06c6c' },
+  maskedKey: { flex: 1, fontSize: 13, color: '#1a1612' },
+  deleteText: { fontSize: 13, color: '#c05050' },
   testBtn: {
-    borderWidth: 1, borderColor: '#2a2d3a', borderRadius: 8,
+    borderWidth: 1, borderColor: '#d8d0c0', borderRadius: 8,
     padding: 10, alignItems: 'center',
   },
-  testBtnText: { fontSize: 13, color: '#8888a0' },
-  testOk: { fontSize: 13, color: '#6abf8a' },
-  testFail: { fontSize: 13, color: '#e06c6c' },
+  testBtnText: { fontSize: 13, color: '#6b6355' },
+  testOk: { fontSize: 13, color: '#4a8860' },
+  testFail: { fontSize: 13, color: '#c05050' },
 
   infoRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  infoLabel: { fontSize: 13, color: '#5a6080' },
-  infoValue: { fontSize: 13, color: '#8888a0' },
+  infoLabel: { fontSize: 13, color: '#6b6355' },
+  infoValue: { fontSize: 13, color: '#a09580' },
 });

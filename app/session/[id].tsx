@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, FlatList,
   StyleSheet, KeyboardAvoidingView, Platform,
-  ActivityIndicator, Alert,
+  ActivityIndicator, Alert, Animated,
 } from 'react-native';
 import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
 import { useSessionStore } from '@/store/sessionStore';
@@ -25,7 +25,20 @@ export default function ChatScreen() {
   const [hasInit, setHasInit] = useState(false);
   const [isSummarizing, setIsSummarizing] = useState(false);
 
-  // ヘッダータイトルをセッションの疑問文に設定
+  // 点滅アニメーション
+  const dotAnim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (!isSending) return;
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(dotAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.timing(dotAnim, { toValue: 0, duration: 500, useNativeDriver: true }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [isSending]);
+
   useEffect(() => {
     if (session) {
       navigation.setOptions({
@@ -44,14 +57,11 @@ export default function ChatScreen() {
     }
   }, [session?.question]);
 
-  // 初回: ソースがあればAIに最初のメッセージを自動送信
   useEffect(() => {
     if (!session || hasInit) return;
     setHasInit(true);
     if (session.messages.length === 0 && session.sources.length > 0) {
       const firstSource = session.sources[0];
-      // PDF の場合は base64 をテキストとして使わず、プレースホルダーのみ送る
-      // 実際の PDF は useChat の buildHistory で document ブロックに変換される
       const initMsg = buildInitialUserMessage({
         question: session.question,
         sourceContent: firstSource.type === 'pdf'
@@ -61,12 +71,10 @@ export default function ChatScreen() {
       });
       send(initMsg);
     } else if (session.messages.length === 0) {
-      // ソースなしの場合はシンプルに疑問だけ送る
       send(`【疑問】${session.question}\n\nこのテーマについて一緒に考えていきたいです。まず、この疑問を深掘りするためにどこから始めるといいか教えてください。`);
     }
   }, [session?.id]);
 
-  // メッセージ追加時に最下部へスクロール
   useEffect(() => {
     if ((session?.messages.length ?? 0) > 0) {
       setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
@@ -98,7 +106,7 @@ export default function ChatScreen() {
   if (!session) {
     return (
       <View style={styles.centered}>
-        <Text style={{ color: '#5a6080' }}>セッションが見つかりません</Text>
+        <Text style={{ color: '#a09580' }}>セッションが見つかりません</Text>
       </View>
     );
   }
@@ -133,7 +141,6 @@ export default function ChatScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={90}
     >
-      {/* ソースバッジ */}
       {session.sources.length > 0 && (
         <View style={styles.sourceBar}>
           <Text style={styles.sourceIcon}>
@@ -145,7 +152,6 @@ export default function ChatScreen() {
         </View>
       )}
 
-      {/* メッセージリスト */}
       <FlatList
         ref={flatListRef}
         data={session.messages}
@@ -159,24 +165,28 @@ export default function ChatScreen() {
                 <Text style={styles.avatarText}>AI</Text>
               </View>
               <View style={styles.thinkingBubble}>
-                <ActivityIndicator size="small" color="#c9a84c" />
+                <Animated.View style={{ opacity: dotAnim }}>
+                  <Text style={styles.thinkingDots}>●●●</Text>
+                </Animated.View>
+                <Text style={styles.thinkingLabel}>考えています...</Text>
               </View>
             </View>
           ) : null
         }
       />
 
-      {/* エラー表示 */}
       {error && (
         <View style={styles.errorBar}>
           <Text style={styles.errorText}>{error}</Text>
         </View>
       )}
 
-      {/* 入力エリア */}
       <View style={styles.inputArea}>
         <TouchableOpacity
-          style={styles.summaryBtn}
+          style={[
+            styles.summaryBtn,
+            (isSummarizing || session.messages.length < 4) && styles.summaryBtnDisabled,
+          ]}
           onPress={handleSummarize}
           disabled={isSummarizing || session.messages.length < 4}
         >
@@ -190,7 +200,7 @@ export default function ChatScreen() {
           value={input}
           onChangeText={setInput}
           placeholder="質問・考えを入力..."
-          placeholderTextColor="#3a3d50"
+          placeholderTextColor="#b8b0a0"
           multiline
           maxLength={2000}
         />
@@ -207,16 +217,16 @@ export default function ChatScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0d0e14' },
+  container: { flex: 1, backgroundColor: '#f5f0e8' },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 
   sourceBar: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
     padding: 10, paddingHorizontal: 16,
-    backgroundColor: '#10121a', borderBottomWidth: 1, borderBottomColor: '#1e2030',
+    backgroundColor: '#ede8dd', borderBottomWidth: 1, borderBottomColor: '#d8d0c0',
   },
   sourceIcon: { fontSize: 14 },
-  sourceRef: { fontSize: 12, color: '#5a6080', flex: 1 },
+  sourceRef: { fontSize: 12, color: '#a09580', flex: 1 },
 
   messageList: { padding: 16, gap: 16, paddingBottom: 8 },
 
@@ -226,52 +236,54 @@ const styles = StyleSheet.create({
 
   avatar: {
     width: 28, height: 28, borderRadius: 14,
-    backgroundColor: '#1a1510', borderWidth: 1, borderColor: '#3a2a10',
+    backgroundColor: '#fdf5e0', borderWidth: 1, borderColor: '#e8d080',
     alignItems: 'center', justifyContent: 'center',
   },
   avatarText: { fontSize: 10, color: '#c9a84c', fontWeight: '600' },
 
-  bubble: {
-    maxWidth: '80%', borderRadius: 16, padding: 12,
-  },
+  bubble: { maxWidth: '80%', borderRadius: 16, padding: 12 },
   bubbleUser: {
-    backgroundColor: '#1e2030', borderBottomRightRadius: 4,
+    backgroundColor: '#c9a84c', borderBottomRightRadius: 4,
   },
   bubbleAI: {
-    backgroundColor: '#10121a', borderWidth: 1, borderColor: '#1e2030',
+    backgroundColor: '#ede8dd', borderWidth: 1, borderColor: '#d8d0c0',
     borderBottomLeftRadius: 4,
   },
   messageText: { fontSize: 14, lineHeight: 22 },
-  messageTextUser: { color: '#b0b8d0' },
-  messageTextAI: { color: '#e8e0d0' },
+  messageTextUser: { color: '#fff' },
+  messageTextAI: { color: '#1a1612' },
 
   thinkingRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-end', marginTop: 8 },
   thinkingBubble: {
-    backgroundColor: '#10121a', borderWidth: 1, borderColor: '#1e2030',
+    backgroundColor: '#ede8dd', borderWidth: 1, borderColor: '#d8d0c0',
     borderRadius: 16, borderBottomLeftRadius: 4,
-    padding: 12, width: 52,
+    padding: 12, gap: 4,
   },
+  thinkingDots: { fontSize: 10, color: '#c9a84c', letterSpacing: 2 },
+  thinkingLabel: { fontSize: 12, color: '#a09580' },
 
   errorBar: {
-    backgroundColor: '#2a1010', padding: 12, marginHorizontal: 16, borderRadius: 8,
+    backgroundColor: '#fde8e8', padding: 12, marginHorizontal: 16, borderRadius: 8,
   },
-  errorText: { fontSize: 13, color: '#e06c6c' },
+  errorText: { fontSize: 13, color: '#c05050' },
 
   inputArea: {
     flexDirection: 'row', alignItems: 'flex-end', gap: 8,
-    padding: 12, borderTopWidth: 1, borderTopColor: '#1e2030',
-    backgroundColor: '#0d0e14',
+    padding: 12, borderTopWidth: 1, borderTopColor: '#d8d0c0',
+    backgroundColor: '#f5f0e8',
   },
   summaryBtn: {
     width: 48, height: 44, borderRadius: 10,
-    borderWidth: 1, borderColor: '#2a2d3a',
+    borderWidth: 1, borderColor: '#d8d0c0',
+    backgroundColor: '#ede8dd',
     alignItems: 'center', justifyContent: 'center',
   },
-  summaryBtnText: { fontSize: 11, color: '#5a6080' },
+  summaryBtnDisabled: { opacity: 0.4 },
+  summaryBtnText: { fontSize: 11, color: '#6b6355' },
   textInput: {
-    flex: 1, backgroundColor: '#10121a',
-    borderWidth: 1, borderColor: '#1e2030', borderRadius: 10,
-    padding: 10, paddingTop: 11, color: '#e8e0d0', fontSize: 14,
+    flex: 1, backgroundColor: '#ede8dd',
+    borderWidth: 1, borderColor: '#d8d0c0', borderRadius: 10,
+    padding: 10, paddingTop: 11, color: '#1a1612', fontSize: 14,
     maxHeight: 120, lineHeight: 20,
   },
   sendBtn: {
@@ -279,5 +291,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#c9a84c', alignItems: 'center', justifyContent: 'center',
   },
   sendBtnDisabled: { opacity: 0.4 },
-  sendBtnText: { fontSize: 20, color: '#0d0e14', fontWeight: '700' },
+  sendBtnText: { fontSize: 20, color: '#fff', fontWeight: '700' },
 });

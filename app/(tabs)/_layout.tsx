@@ -1,17 +1,20 @@
 import { Tabs } from 'expo-router';
+import { Text } from 'react-native';
 
 export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
         tabBarStyle: {
-          backgroundColor: '#10121a',
-          borderTopColor: '#1e2030',
+          backgroundColor: '#f5f0e8',
+          borderTopColor: '#d8d0c0',
+          borderTopWidth: 1,
         },
         tabBarActiveTintColor: '#c9a84c',
-        tabBarInactiveTintColor: '#5a6080',
-        headerStyle: { backgroundColor: '#0d0e14' },
-        headerTintColor: '#e8e0d0',
+        tabBarInactiveTintColor: '#a09580',
+        headerStyle: { backgroundColor: '#f5f0e8' },
+        headerTintColor: '#1a1612',
+        headerShadowVisible: false,
       }}
     >
       <Tabs.Screen
@@ -33,6 +36,5 @@ export default function TabsLayout() {
 }
 
 function TabIcon({ label, color }: { label: string; color: string }) {
-  const { Text } = require('react-native');
   return <Text style={{ color, fontSize: 18 }}>{label}</Text>;
 }
