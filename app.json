@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "Study Partner",
+    "slug": "study-partner",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "studypartner",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.ukajishouta.studypartner",
+      "infoPlist": {
+        "NSShareExtensionEnabled": true
+      }
+    },
+    "android": {
+      "package": "com.ukajishouta.studypartner",
+      "adaptiveIcon": {
+        "backgroundColor": "#0d0e14"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-document-picker",
+        {
+          "iCloudContainerEnvironment": "Production"
+        }
+      ],
+      [
+        "expo-share-intent",
+        {
+          "iosActivationRules": {
+            "NSExtensionActivationSupportsWebURLWithMaxCount": 1,
+            "NSExtensionActivationSupportsWebPageWithMaxCount": 1
+          },
+          "androidIntentFilters": [
+            "text/*"
+          ]
+        }
+      ],
+      "expo-asset"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
