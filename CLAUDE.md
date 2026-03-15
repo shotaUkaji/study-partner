@@ -269,11 +269,39 @@ await db.execAsync(CREATE_TABLES_SQL);
 - 型定義の変更 → サービス変更 → 画面変更 のように依存順に分割するとなお良い
 - バグ修正は修正のみで 1 コミット（関係ない改善を混ぜない）
 
+### メッセージの書き方
+
+1行目にプレフィックス＋概要、空行を挟んで本文に **なぜその変更をしたか** を書く。
+
+```
+feat: PDF インポート機能を追加
+
+expo-document-picker で PDF を選択し、base64 で Source に保存する。
+Anthropic API の document ブロックとして送信することでテキスト抽出不要にした。
+```
+
+- 1行目は 50 字以内を目安
+- 本文は「何をしたか」より「**なぜ**・**何のために**」を優先
+- 自明な変更（typo 修正など）は1行でも可
+
+### 依存関係を変更したとき
+
+`package.json` / `package-lock.json` が変わるコミットには必ず理由を書く。
+
+```
+chore: patch-package を追加
+
+react-native-css-interop@0.2.3 が reanimated v4 用の
+worklets/plugin を無条件で require するバグがある。
+v3 環境では不要なため patch-package でパッチを当てて対処。
+```
+
 ### コマンド
 
 ```bash
 git add <ファイル>          # 関係するファイルだけ指定（git add . は避ける）
-git commit -m "feat: PDF インポート機能を追加"
+git commit                  # エディタで本文まで書く場合
+git commit -m "fix: ..." -m "本文をここに書く"  # コマンドラインで完結させる場合
 git push
 ```
 
