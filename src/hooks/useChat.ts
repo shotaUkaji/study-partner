@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { randomUUID } from 'expo-crypto';
 import { useSessionStore } from '@/store/sessionStore';
 import { sendMessage } from '@/services/anthropic';
 import { getApiKey } from '@/hooks/useStorage';
@@ -24,7 +25,7 @@ export function useChat(sessionId: string) {
 
     // ユーザーメッセージを保存
     const userMessage: Message = {
-      id: crypto.randomUUID(),
+      id: randomUUID(),
       sessionId,
       role: 'user',
       content: userText,
@@ -44,7 +45,7 @@ export function useChat(sessionId: string) {
       setError(result.error);
     } else {
       const assistantMessage: Message = {
-        id: crypto.randomUUID(),
+        id: randomUUID(),
         sessionId,
         role: 'assistant',
         content: result.content,

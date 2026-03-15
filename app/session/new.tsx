@@ -4,6 +4,7 @@ import {
   StyleSheet, ScrollView, ActivityIndicator, Alert,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { randomUUID } from 'expo-crypto';
 import { useSessionStore } from '@/store/sessionStore';
 import { fetchUrlContent, isValidUrl, extractDomain } from '@/services/jina';
 import { pickPdf } from '@/services/pdf';
@@ -42,7 +43,8 @@ export default function NewSessionScreen() {
     try {
       await doStart();
     } catch (e) {
-      Alert.alert('エラー', '起動に失敗しました。もう一度お試しください。');
+      const msg = e instanceof Error ? e.message : String(e);
+      Alert.alert('エラー詳細', msg);
       setIsStarting(false);
       setIsFetching(false);
     }
@@ -103,7 +105,7 @@ export default function NewSessionScreen() {
   ) => {
     if (content) {
       const source: Source = {
-        id: crypto.randomUUID(),
+        id: randomUUID(),
         sessionId: id,
         type,
         originalRef: ref,
