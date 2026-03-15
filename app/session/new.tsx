@@ -39,6 +39,16 @@ export default function NewSessionScreen() {
     if (!canStart) return;
     setIsStarting(true);
 
+    try {
+      await doStart();
+    } catch (e) {
+      Alert.alert('エラー', '起動に失敗しました。もう一度お試しください。');
+      setIsStarting(false);
+      setIsFetching(false);
+    }
+  };
+
+  const doStart = async () => {
     const id = await createSession(question.trim());
 
     let sourceContent = '';
