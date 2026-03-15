@@ -17,13 +17,20 @@ export default function ChatScreen() {
   const navigation = useNavigation();
   const flatListRef = useRef<FlatList>(null);
 
-  const { getSession, updateSummary } = useSessionStore();
+  const { getSession, loadSessions, updateSummary } = useSessionStore();
   const session = getSession(id);
   const { send, isSending, error } = useChat(id);
 
   const [input, setInput] = useState('');
   const [hasInit, setHasInit] = useState(false);
   const [isSummarizing, setIsSummarizing] = useState(false);
+  const [isLoadingSession, setIsLoadingSession] = useState(!session);
+
+  // セッションが見つからない場合は DB から再ロードして待つ
+  useEffect(() => {
+    if (session) { setIsLoadingSession(false); return; }
+    loadSessions().then(() => setIsLoadingSession(false));
+  }, [id]);
 
   // 点滅アニメーション
   const dotAnim = useRef(new Animated.Value(0)).current;
@@ -102,6 +109,14 @@ export default function ChatScreen() {
     }
     setIsSummarizing(false);
   };
+
+  if (isLoadingSession || (!session && !hasInit)) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator color="#c9a84c" />
+      </View>
+    );
+  }
 
   if (!session) {
     return (
