@@ -7,6 +7,12 @@
     "scheme": "studypartner",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "icon": "./assets/images/icon.png",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0d0e14"
+    },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.ukajishouta.studypartner",
@@ -17,6 +23,7 @@
     "android": {
       "package": "com.ukajishouta.studypartner",
       "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#0d0e14"
       }
     },
