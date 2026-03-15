@@ -2,6 +2,7 @@ import type { AnthropicMessage } from '@/types';
 
 const ANTHROPIC_VERSION = '2023-06-01';
 const MODEL = 'claude-sonnet-4-20250514';
+const API_TIMEOUT_MS = 30000;
 
 export const SYSTEM_PROMPT = `あなたは優秀な「調べごとコンサルタント」AIです。
 ユーザーが持ってきた疑問とコンテンツを一緒に読み解くお手伝いをします。
@@ -47,6 +48,9 @@ export async function sendMessage(params: {
   maxTokens?: number;
 }): Promise<ChatResponse> {
   try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -60,7 +64,8 @@ export async function sendMessage(params: {
         system: SYSTEM_PROMPT,
         messages: params.messages,
       }),
-    });
+      signal: controller.signal,
+    }).finally(() => clearTimeout(timer));
 
     if (!response.ok) {
       const error = await response.json();
@@ -74,8 +79,9 @@ export async function sendMessage(params: {
       .join('');
 
     return { content };
-  } catch (e) {
-    return { content: '', error: 'ネットワークエラーが発生しました' };
+  } catch (e: unknown) {
+    const isTimeout = e instanceof Error && e.name === 'AbortError';
+    return { content: '', error: isTimeout ? 'AI の応答がタイムアウトしました（30秒）' : 'ネットワークエラーが発生しました' };
   }
 }
 
