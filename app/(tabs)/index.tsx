@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity,
   StyleSheet, ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { useShareIntentContext } from 'expo-share-intent';
 import { useSessionStore } from '@/store/sessionStore';
 import type { Session } from '@/types';
@@ -13,7 +14,8 @@ export default function HomeScreen() {
   const { sessions, isLoading, loadSessions, deleteSession } = useSessionStore();
   const { hasShareIntent, shareIntent, resetShareIntent } = useShareIntentContext();
 
-  useEffect(() => { loadSessions(); }, []);
+  // 画面に戻るたびに最新のセッション一覧を取得
+  useFocusEffect(useCallback(() => { loadSessions(); }, []));
 
   useEffect(() => {
     if (!hasShareIntent) return;
